@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculateur de Taux de Change Négocié - Devise MAD</title>
+    
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* GLOBAL STYLES & TYPOGRAPHY */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f8fb; /* Gris-Bleu Très Clair */
+            color: #343a40; 
+            margin: 0;
+            padding: 15px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 25px auto;
+            background: #ffffff;
+            padding: 25px 30px;
+            border-radius: 12px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+            border-top: 5px solid #004080; /* Bande supérieure pour le branding */
+        }
+
+        h2 {
+            color: #004080; /* Bleu Marine Profond */
+            text-align: center;
+            font-size: 2.2em;
+            font-weight: 700;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            position: relative;
+        }
+        h2 i {
+            color: #00a896; /* Turquoise Sarcelle pour les icônes principales */
+            margin-right: 10px;
+        }
+        h2::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background-color: #00a896;
+            border-radius: 2px;
+        }
+        h3 {
+            color: #004080;
+            font-size: 1.4em;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        h4 {
+            color: #495057;
+            font-size: 1.1em;
+            margin-top: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+        }
+        h4 i {
+            margin-right: 8px;
+            color: #00a896;
+        }
+
+        /* FORM ELEMENTS */
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #004080; /* Texte de label en Bleu Marine */
+            font-size: 0.95em;
+        }
+
+        input[type="number"], select {
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1em;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            background-color: #fcfcfc;
+        }
+
+        input[type="number"]:focus, select:focus {
+            border-color: #00a896;
+            box-shadow: 0 0 0 3px rgba(0, 168, 150, 0.2);
+            outline: none;
+        }
+
+        /* STATUS & NOTES */
+        .note {
+            font-size: 0.9em;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        #loading-status.info {
+            background-color: #e6f7ff;
+            border: 1px solid #91d5ff;
+            color: #004080;
+        }
+        #loading-status.success {
+            background-color: #d4edda; 
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        #loading-status.error {
+            background-color: #f8d7da; 
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        /* RESULTS SECTION */
+        #resultat, #arguments {
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #ffffff; 
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .result-group {
+            background-color: #f8f9fa; /* Fond léger pour les groupes */
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .taux-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px dotted #e9ecef;
+        }
+        .taux-line:last-child {
+            border-bottom: none;
+        }
+        .taux-line span:first-child {
+            font-weight: 500;
+            color: #555;
+        }
+        .taux-line strong {
+            font-size: 1.3em;
+            color: #004080;
+            font-weight: 700;
+        }
+        
+        /* COULEURS SEMANTIQUES */
+        .taux-line.ideal strong {
+            color: #28a745; /* Vert Succès */
+        }
+        .taux-line.seuil strong {
+            color: #dc3545; /* Rouge Alerte */
+        }
+
+        /* ARGUMENTS SECTION */
+        #arguments li {
+            background: #f0faff; /* Bleu très très clair */
+            margin-bottom: 10px;
+            padding: 12px 15px;
+            border-left: 5px solid #00a896; /* Accent Turquoise */
+            border-radius: 8px;
+            font-size: 0.95em;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        }
+        #arguments li strong {
+            color: #004080;
+        }
+
+        /* RESPONSIVE ADJUSTMENTS */
+        @media (max-width: 600px) {
+            .container {
+                margin: 10px auto;
+                padding: 15px;
+            }
+            h2 {
+                font-size: 1.8em;
+                margin-bottom: 20px;
+            }
+            .taux-line {
+                flex-direction: column; 
+                align-items: flex-start;
+            }
+            .taux-line strong {
+                font-size: 1.1em;
+                margin-top: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2><i class="fas fa-handshake"></i> Outil de Négociation des Cessions de Devises</h2>
+
+    <div id="loading-status" class="note info">
+        <i class="fas fa-circle-notch fa-spin"></i> Tentative de récupération des taux en temps réel...
+    </div>
+    
+    <label for="montant"><i class="fas fa-calculator"></i> Montant à Céder :</label>
+    <input type="number" id="montant" value="84000" min="1000" oninput="calculateTaux()">
+
+    <label for="devise"><i class="fas fa-coins"></i> Devise de Cession :</label>
+    <select id="devise" onchange="updateTauxBasePlaceholder(); calculateTaux()">
+        <option value="USD" selected>Dollar Américain (USD)</option>
+        <option value="EUR">Euro (EUR)</option>
+        <option value="GBP">Livre Sterling (GBP)</option>
+        <option value="CAD">Dollar Canadien (CAD)</option>
+    </select>
+
+    <label for="tauxBase"><i class="fas fa-exchange-alt"></i> Taux Interbancaire de Référence (X/MAD) :</label>
+    <input type="number" id="tauxBase" value="" step="0.00001" oninput="calculateTaux()" placeholder="Saisir ou attendre le taux X/MAD de l'API/BAM">
+
+    <div id="resultat">
+        <p style="text-align: center; color: #6c757d;">Les résultats de l'analyse s'afficheront ici.</p>
+    </div>
+
+    <div id="arguments">
+        <h3><i class="fas fa-bullhorn"></i> Arguments Clés pour la Négociation</h3>
+        <ul>
+            <li>... Les arguments seront mis à jour automatiquement ...</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    // Le script JavaScript reste identique à la version précédente (gestion API et calculs), 
+    // car le focus était ici sur le design (CSS).
+    
+    const MARGE_IDEALE = 0.0075; // 0.75%
+    const MARGE_MINIMALE = 0.01;   // 1.0% (marge à ne pas dépasser)
+
+    let APPROX_RATES = {
+        'USD': 9.2843, 
+        'EUR': 10.7237,
+        'GBP': 12.186,
+        'CAD': 6.6242
+    };
+
+    const API_URL = 'https://api.exchangerate-api.com/v4/latest/USD'; 
+    let currentRates = APPROX_RATES; 
+
+    const loadingStatus = document.getElementById('loading-status');
+
+    async function fetchRates() {
+        loadingStatus.className = 'note info';
+        loadingStatus.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Récupération des taux en temps réel...';
+
+        try {
+            const response = await fetch(API_URL);
+            if (!response.ok) throw new Error(`API response failed: ${response.status}`);
+            const data = await response.json();
+            
+            const usdToMadRate = data.rates['MAD']; 
+            if (!usdToMadRate) throw new Error('MAD rate not available in API.');
+
+            currentRates = {
+                'USD': usdToMadRate,
+                'EUR': usdToMadRate / data.rates['EUR'],
+                'GBP': usdToMadRate / data.rates['GBP'],
+                'CAD': usdToMadRate / data.rates['CAD'],
+            };
+
+            loadingStatus.className = 'note success';
+            loadingStatus.innerHTML = `<i class="fas fa-check-circle"></i> Taux mis à jour via API (${new Date().toLocaleTimeString('fr-MA')}). Taux USD/MAD: ${currentRates['USD'].toFixed(4)}`;
+
+        } catch (error) {
+            console.error("Erreur lors de la récupération des taux via API :", error);
+            currentRates = APPROX_RATES; 
+            loadingStatus.className = 'note error';
+            loadingStatus.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Échec de l'API. Utilisation des taux de secours (BAM 31/10/2025). Veuillez vérifier ou mettre à jour manuellement.`;
+        }
+        
+        updateTauxBasePlaceholder(); 
+    }
+
+    function updateTauxBasePlaceholder() {
+        const devise = document.getElementById('devise').value;
+        const tauxBaseInput = document.getElementById('tauxBase');
+        
+        if (currentRates[devise]) {
+            tauxBaseInput.value = currentRates[devise].toFixed(5);
+        } else {
+            tauxBaseInput.value = ''; 
+            tauxBaseInput.placeholder = 'Taux non disponible, saisir manuellement';
+        }
+        calculateTaux();
+    }
+
+    function calculateTaux() {
+        const montant = parseFloat(document.getElementById('montant').value);
+        const devise = document.getElementById('devise').value;
+        const tauxBase = parseFloat(document.getElementById('tauxBase').value);
+        const resultatDiv = document.getElementById('resultat');
+        const argumentsDiv = document.getElementById('arguments');
+
+        if (isNaN(montant) || montant <= 0 || isNaN(tauxBase) || tauxBase <= 0) {
+            resultatDiv.innerHTML = '<p style="text-align: center; color: #dc3545;"><i class="fas fa-exclamation-circle"></i> Veuillez saisir des montants valides et un taux de référence.</p>';
+            argumentsDiv.style.display = 'none';
+            return;
+        }
+
+        argumentsDiv.style.display = 'block';
+
+        const tauxCibleIdeal = tauxBase * (1 - MARGE_IDEALE);
+        const montantIdeal = montant * tauxCibleIdeal;
+        const tauxCibleMin = tauxBase * (1 - MARGE_MINIMALE);
+        const montantMinimum = montant * tauxCibleMin;
+        const montantReference = montant * tauxBase;
+
+        const argsList = argumentsDiv.querySelector('ul');
+        argsList.innerHTML = `
+            <li>**Argument N°1 (Levier) :** "Étant donné le volume de **${montant.toLocaleString('fr-MA')} ${devise}**, je m'attends à un taux avec une marge inférieure à 1%. J'ai reçu une offre d'un concurrent à **${tauxCibleIdeal.toFixed(4)}**."</li>
+            <li>**Argument N°2 (Fidélité) :** "J'aimerais centraliser tous mes flux de change futurs chez vous. Les conditions offertes aujourd'hui détermineront si je vous confie également les prochaines cessions."</li>
+            <li>**Argument N°3 (Seuil) :** "Un taux en dessous de **${tauxCibleMin.toFixed(4)}** est économiquement désavantageux pour moi par rapport au marché. Pouvons-nous nous rapprocher du taux cible de **${tauxCibleIdeal.toFixed(4)}** ?"</li>
+        `;
+        
+        resultatDiv.innerHTML = `
+            <h3><i class="fas fa-chart-bar"></i> Analyse de Cession pour ${montant.toLocaleString('fr-MA')} ${devise}</h3>
+            
+            <div class="result-group">
+                <h4><i class="fas fa-info-circle"></i> Taux de Référence</h4>
+                <div class="taux-line"><span>Taux Interbancaire (Référence) :</span> <strong>${tauxBase.toFixed(4)} MAD</strong></div>
+                <div class="taux-line"><span>Montant de Référence (Zéro Marge) :</span> ${montantReference.toLocaleString('fr-MA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MAD</div>
+            </div>
+
+            <div class="result-group">
+                <h4><i class="fas fa-trophy"></i> Votre Objectif de Négociation</h4>
+                <div class="taux-line ideal"><span>Taux Bid Cible (marge 0,75%) :</span> <strong>${tauxCibleIdeal.toFixed(4)} MAD</strong></div>
+                <div class="taux-line ideal"><span>Montant MAD Reçu :</span> <strong>${montantIdeal.toLocaleString('fr-MA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MAD</strong></div>
+            </div>
+
+            <div class="result-group">
+                <h4><i class="fas fa-times-circle"></i> Seuil d'Acceptation Minimum</h4>
+                <div class="taux-line seuil"><span>Taux Bid Minimum (marge 1,0%) :</span> <strong>${tauxCibleMin.toFixed(4)} MAD</strong></div>
+                <div class="taux-line seuil"><span>Montant MAD Reçu :</span> <strong>${montantMinimum.toLocaleString('fr-MA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MAD</strong></div>
+            </div>
+        `;
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchRates);
+</script>
+
+</body>
+</html>
